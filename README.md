@@ -26,7 +26,7 @@ corresponding source code.
 If you use this code, please make sure to cite the paper of the
 calculation:
 
-- V. Bertone, *Matching generalised transverse-momentum-dependent distributions onto generalised parton distributions at one loop*, [arXiv:2207.xxxxx](),
+- V. Bertone, *Matching generalised transverse-momentum-dependent distributions onto generalised parton distributions at one loop*, [arXiv:2207.09526](https://arxiv.org/pdf/2207.09526.pdf),
 
 as well the publications of the dependency softwares:
 
