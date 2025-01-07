@@ -6,6 +6,7 @@
 *.toc
 *.loc
 *.soc
+*.dat
 EvolutionCheck
 EvolutionCheck.o
 GTMDMatchingkTQ

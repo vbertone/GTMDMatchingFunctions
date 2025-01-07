@@ -5,6 +5,9 @@
 #include <cmath>
 #include <map>
 #include <apfel/apfelxx.h>
+// NangaParbat
+#include <NangaParbat/bstar.h>
+#include <NangaParbat/nonpertfunctions.h>
 /*
  * This code computes S11a0+q as a function of kT at fixed x, t, and Q for
  * a vector of values in xi.
@@ -47,6 +50,9 @@ int main(int argc, char **argv)
   // Vector of thresholds
   const std::vector<double> Thresholds = {0, 0, 0, mc, mb, mt};
 
+  // b* prescription
+  const std::function<double(double const &, double const &)> bs = NangaParbat::bstarMap.at("bstarmin");
+
   // Configure APFEL++
   apfel::SetVerbosityLevel(2);
   apfel::Banner();
@@ -78,7 +84,7 @@ int main(int argc, char **argv)
   for (double bT = bTmin; bT <= bTmax * (1 + 1e-5); bT += bTstp)
     {
       output_stream << bT << "  ";
-      output_stream << M_PI * 0.5 * CSkernel(bT, mu) << "  ";
+      output_stream << CSkernel(bs(bT, mu), mu) << "  ";
       output_stream << std::endl;
     }
 

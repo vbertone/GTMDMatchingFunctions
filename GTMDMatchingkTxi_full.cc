@@ -201,7 +201,7 @@ int main(int argc, char **argv)
       const auto CollGPDs = [=](double const &mu) -> apfel::Set<apfel::Distribution> { return TabulatedGPDs.Evaluate(mu); };
 
       // phi mixing angle
-      const auto mixing_angle = [=](double const &bT) -> double { return xb > xi ? 0 : M_PI * 0.5 * CSkernel(bT, mu); };
+      const auto mixing_angle = [=](double const &bT) -> double { return xb > xi ? 0 : M_PI * 0.5 * CSkernel(bs(bT, mu), mu); };
 
       // Now compute GTMDs in bT space
       // Tabulate directly with the mixing angle
@@ -227,7 +227,7 @@ int main(int argc, char **argv)
         // double l2 = sin(mixing_angle(bT));
         // double even = QCDEvToPhys(EvGTMDs(bs(bT, mu), mu, mu * mu).GetObjects()).at(ifl).Evaluate(xb);
         double odd = QCDEvToPhys(EvGTMDs_odd(bs(bT, mu), mu, mu * mu).GetObjects()).at(ifl).Evaluate(xb);
-        // return bT * NPFunc->Evaluate(xb, bT, mu * mu, 0) * (l1 * odd + l1 * even);
+        // return bT * NPFunc->Evaluate(xb, bT, mu * mu, 0) * (l1 * odd + l2 * even);
         return bT * NPFunc->Evaluate(xb, bT, mu * mu, 0) * (odd);
       };
       const apfel::TabulateObject<double> TabxGb_odd{
