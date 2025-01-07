@@ -7,6 +7,7 @@
 *.loc
 *.soc
 *.dat
+*.pdf
 EvolutionCheck
 EvolutionCheck.o
 GTMDMatchingkTQ
@@ -22,3 +23,7 @@ GTMDMatchingkTxi_full.o
 Mixing_angle
 Mixing_angle.o
 /.vscode/
+
+.ipynb_checkpoints/
+*.pyc
+__pycache__/
