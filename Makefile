@@ -1,6 +1,6 @@
 CXX = clang++
 
-CXXFLAGS += -O3 -fPIC -std=c++11
+CXXFLAGS += -O3 -fPIC -std=c++20
 
 # APFEL++
 APFELPPINCS = $(shell apfelxx-config --cppflags)
@@ -22,11 +22,15 @@ CLIBS += $(APFELPPLIBS) $(PARTONSLIBS) $(NANGAPARBATLIBS)
 
 install : all
 all : EvolutionCheck GTMDMatchingkTxi GTMDMatchingkTQ GTMDMatchingxxi GTMDMatchingxxi_analytic
+full: GTMDMatchingkTxi_full
 
 EvolutionCheck: EvolutionCheck.o
 	$(CXX) $(LDFLAGS) -o $@ $< $(CLIBS)
 
 GTMDMatchingkTxi: GTMDMatchingkTxi.o
+	$(CXX) $(LDFLAGS) -o $@ $< $(CLIBS)
+
+GTMDMatchingkTxi_full: GTMDMatchingkTxi_full.o
 	$(CXX) $(LDFLAGS) -o $@ $< $(CLIBS)
 
 GTMDMatchingkTQ: GTMDMatchingkTQ.o
@@ -47,4 +51,4 @@ GTMDMatchingxxi_analytic: GTMDMatchingxxi_analytic.o
 	$(F77)  -c $< 
 
 clean:
-	rm -rf *.lo *.o *.la EvolutionCheck GTMDMatchingkTxi GTMDMatchingkTQ GTMDMatchingxxi GTMDMatchingxxi_analytic *~
+	rm -rf *.lo *.o *.la EvolutionCheck GTMDMatchingkTxi GTMDMatchingkTQ GTMDMatchingxxi GTMDMatchingxxi_analytic GTMDMatchingkTxi_full *~

@@ -97,7 +97,7 @@ int main(int argc, char** argv)
       const auto CollGPDs = [=] (double const& muf) -> apfel::Set<apfel::Distribution> { return TabulatedGPDs.Evaluate(muf); };
 
       // Now compute GTMDs in bT space
-      const auto EvGTMDs = BuildGtmds(apfel::InitializeGtmdObjects(g, Thresholds, xi), CollGPDs, as, 2);
+      const auto EvGTMDs = BuildGtmds(apfel::InitializeGtmdObjectsEvenUU(g, Thresholds, xi), CollGPDs, as, 2);
 
       // Double exponential quadrature
       apfel::DoubleExponentialQuadrature DEObj{};

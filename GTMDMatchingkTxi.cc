@@ -120,7 +120,7 @@ int main(int argc, char** argv)
       const auto CollGPDs = [=] (double const& mu) -> apfel::Set<apfel::Distribution> { return TabulatedGPDs.Evaluate(mu); };
 
       // Now compute GTMDs in bT space
-      const auto EvGTMDs = BuildGtmds(apfel::InitializeGtmdObjects(g, Thresholds, xi), CollGPDs, as, 2);
+      const auto EvGTMDs = BuildGtmds(apfel::InitializeGtmdObjectsEvenUU(g, Thresholds, xi), CollGPDs, as, 2);
       const std::function<double(double const&)> xGb = [=] (double const& bT) -> double { return bT * QCDEvToPhys(EvGTMDs(bs(bT, mu), mu, mu * mu).GetObjects()).at(ifl).Evaluate(xb) * NPFunc->Evaluate(xb, bT, mu * mu, 0); };
       const apfel::TabulateObject<double> TabxGb{xGb, 100, 0.00005, 100, 5, {}, [] (double const& x)->double{ return log(x); }, [] (double const& x)->double{ return exp(x); }};
       txGb.push_back([=] (double const& bT) -> double{ return TabxGb.Evaluate(bT); });
