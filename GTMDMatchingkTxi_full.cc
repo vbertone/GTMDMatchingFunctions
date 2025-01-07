@@ -21,27 +21,19 @@
  */
 int main(int argc, char **argv)
 {
-  if (argc != 2)
-    {
-      exit(-1);
-    }
 
   // Bind output stream to either stdout or file stream
   std::ofstream file_stream;
   std::ostream *stream_ptr = nullptr;
 
-  if (std::string(argv[1]) == "file")
+  if (argc >= 2 && std::string(argv[1]) == "file")
     {
       file_stream.open("output_Main.dat");
       stream_ptr = &file_stream;
     }
-  else if (std::string(argv[1]) == "stdout")
-    {
-      stream_ptr = &std::cout;
-    }
   else
     {
-      exit(-1);
+      stream_ptr = &std::cout;
     }
 
   std::ostream &output_stream = *stream_ptr;
@@ -250,32 +242,62 @@ int main(int argc, char **argv)
       txGb_odd.push_back([=](double const &bT) -> double { return TabxGb_odd.Evaluate(bT); });
     }
 
-  // Double exponential quadrature
-  apfel::DoubleExponentialQuadrature DEObj{};
-
-  // Tabulation parameters
-  const int nqT = 100;
-  const double qTmin = 1e-4;
-  const double qTmax = 2;
-  const double qTstp = (qTmax - qTmin) / (nqT - 1);
-  output_stream << std::scientific;
-  output_stream << "# kT [GeV]         GTMD (T-even  T-odd) at xi = [" << xiv[0];
-  for (size_t i = 1; i < xiv.size(); i++)
-    output_stream << ", " << xiv[i];
-  output_stream << "]" << std::endl;
-
-  for (double qT = qTmin; qT <= qTmax * (1 + 1e-5); qT += qTstp)
+  bool transform_in_qT = false;
+  if (transform_in_qT)
     {
-      // output_stream << qT << "  " << DEObj.transform(txTb, qT) << "  ";
-      output_stream << qT << "  ";
-      for (size_t i = 0; i < txGb.size(); i++)
+      // Double exponential quadrature
+      apfel::DoubleExponentialQuadrature DEObj{};
+
+      // Tabulation parameters
+      const int nqT = 100;
+      const double qTmin = 1e-4;
+      const double qTmax = 2;
+      const double qTstp = (qTmax - qTmin) / (nqT - 1);
+      output_stream << std::scientific;
+      output_stream << "# kT [GeV]         GTMD (T-even  T-odd) at xi = [" << xiv[0];
+      for (size_t i = 1; i < xiv.size(); i++)
+        output_stream << ", " << xiv[i];
+      output_stream << "]" << std::endl;
+
+      for (double qT = qTmin; qT <= qTmax * (1 + 1e-5); qT += qTstp)
         {
-          const auto &f_even = txGb[i];
-          const auto &f_odd = txGb_odd[i];
-          output_stream << DEObj.transform(f_even, qT) << "  ";
-          output_stream << DEObj.transform(f_odd, qT) << "  ";
+          // output_stream << qT << "  " << DEObj.transform(txTb, qT) << "  ";
+          output_stream << qT << "  ";
+          for (size_t i = 0; i < txGb.size(); i++)
+            {
+              const auto &f_even = txGb[i];
+              const auto &f_odd = txGb_odd[i];
+              output_stream << DEObj.transform(f_even, qT) << "  ";
+              output_stream << DEObj.transform(f_odd, qT) << "  ";
+            }
+          output_stream << std::endl;
         }
-      output_stream << std::endl;
+    }
+  else
+    {
+      // Tabulation parameters
+      const int nbT = 100;
+      const double bTmin = 1e-4;
+      const double bTmax = 2;
+      const double bTstp = (bTmax - bTmin) / (nbT - 1);
+      output_stream << std::scientific;
+      output_stream << "# bT [GeV^-1]         GTMD (T-even  T-odd) at xi = [" << xiv[0];
+      for (size_t i = 1; i < xiv.size(); i++)
+        output_stream << ", " << xiv[i];
+      output_stream << "]" << std::endl;
+
+      for (double bT = bTmin; bT <= bTmax * (1 + 1e-5); bT += bTstp)
+        {
+          output_stream << bT << "  ";
+          for (size_t i = 0; i < txGb.size(); i++)
+            {
+              const auto &f_even = txGb[i];
+              const auto &f_odd = txGb_odd[i];
+              output_stream << f_even(bT) << "  ";
+              output_stream << f_odd(bT) << "  ";
+            }
+          output_stream << std::endl;
+        }
     }
 
   // Remove pointer references
