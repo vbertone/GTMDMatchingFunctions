@@ -117,7 +117,7 @@ int main(int argc, char **argv)
   // Now compute TMDs in bT space
   // Cache the tmdObj to use it to get CS kernel
   const auto tmdObj = apfel::InitializeTmdObjects(g, Thresholds);
-  auto CSkernel = apfel::CollinsSoperKernel(tmdObj, as, 2);
+  auto CSkernel = apfel::CollinsSoperKernel(tmdObj, as, 2, 1, 1.0e-4);
   const auto EvTMDs = BuildTmdPDFs(apfel::InitializeTmdObjects(g, Thresholds), CollPDFs, as, 2);
   const std::function<double(double const &)> xTb = [=](double const &bT) -> double
   { return bT * QCDEvToPhys(EvTMDs(bs(bT, mu), mu, mu * mu).GetObjects()).at(ifl).Evaluate(xb) * NPFunc->Evaluate(xb, bT, mu * mu, 0); };
@@ -211,22 +211,24 @@ int main(int argc, char **argv)
 
       const std::function<double(double const &)> xGb = [=](double const &bT) -> double
       {
-        double l1 = cos(mixing_angle(bT));
-        double l2 = sin(mixing_angle(bT));
+        // double l1 = cos(mixing_angle(bT));
+        // double l2 = sin(mixing_angle(bT));
         double even = QCDEvToPhys(EvGTMDs(bs(bT, mu), mu, mu * mu).GetObjects()).at(ifl).Evaluate(xb);
-        double odd = QCDEvToPhys(EvGTMDs_odd(bs(bT, mu), mu, mu * mu).GetObjects()).at(ifl).Evaluate(xb);
-        return bT * NPFunc->Evaluate(xb, bT, mu * mu, 0) * (l1 * even - l2 * odd);
+        // double odd = QCDEvToPhys(EvGTMDs_odd(bs(bT, mu), mu, mu * mu).GetObjects()).at(ifl).Evaluate(xb);
+        // return bT * NPFunc->Evaluate(xb, bT, mu * mu, 0) * (l1 * even - l2 * odd);
+        return bT * NPFunc->Evaluate(xb, bT, mu * mu, 0) * (even);
       };
       const apfel::TabulateObject<double> TabxGb{
           xGb, 100, 0.00005, 100, 5, {}, [](double const &x) -> double { return log(x); }, [](double const &x) -> double { return exp(x); }};
 
       const std::function<double(double const &)> xGb_odd = [=](double const &bT) -> double
       {
-        double l1 = cos(mixing_angle(bT));
-        double l2 = sin(mixing_angle(bT));
-        double even = QCDEvToPhys(EvGTMDs(bs(bT, mu), mu, mu * mu).GetObjects()).at(ifl).Evaluate(xb);
+        // double l1 = cos(mixing_angle(bT));
+        // double l2 = sin(mixing_angle(bT));
+        // double even = QCDEvToPhys(EvGTMDs(bs(bT, mu), mu, mu * mu).GetObjects()).at(ifl).Evaluate(xb);
         double odd = QCDEvToPhys(EvGTMDs_odd(bs(bT, mu), mu, mu * mu).GetObjects()).at(ifl).Evaluate(xb);
-        return bT * NPFunc->Evaluate(xb, bT, mu * mu, 0) * (l1 * odd + l1 * even);
+        // return bT * NPFunc->Evaluate(xb, bT, mu * mu, 0) * (l1 * odd + l1 * even);
+        return bT * NPFunc->Evaluate(xb, bT, mu * mu, 0) * (odd);
       };
       const apfel::TabulateObject<double> TabxGb_odd{
           xGb_odd, 100, 0.00005, 100, 5, {}, [](double const &x) -> double { return log(x); }, [](double const &x) -> double { return exp(x); }};
@@ -238,11 +240,26 @@ int main(int argc, char **argv)
       // when I later call the DoubleExponentialQuadrature if xi>xb
       // it is not the T-odd part that causes the issue, but the mixing angle
 
-      txGb.push_back([=](double const &bT) -> double { return TabxGb.Evaluate(bT); });
-      txGb_odd.push_back([=](double const &bT) -> double { return TabxGb_odd.Evaluate(bT); });
+      txGb.push_back(
+          [=](double const &bT) -> double
+          {
+            double l1 = cos(mixing_angle(bT));
+            double l2 = sin(mixing_angle(bT));
+            return TabxGb.Evaluate(bT) * l1 - TabxGb_odd.Evaluate(bT) * l2;
+          });
+      txGb_odd.push_back(
+          [=](double const &bT) -> double
+          {
+            double l1 = cos(mixing_angle(bT));
+            double l2 = sin(mixing_angle(bT));
+            return TabxGb.Evaluate(bT) * l2 + TabxGb_odd.Evaluate(bT) * l1;
+          });
+
+      // txGb.push_back([=](double const &bT) -> double { return TabxGb.Evaluate(bT); });
+      // txGb_odd.push_back([=](double const &bT) -> double { return TabxGb_odd.Evaluate(bT); });
     }
 
-  bool transform_in_qT = false;
+  bool transform_in_qT = true;
   if (transform_in_qT)
     {
       // Double exponential quadrature

@@ -21,7 +21,7 @@ LDFLAGS  += $(APFELPPINCS) $(PARTONSINCS) $(NANGAPARBATINCS)
 CLIBS += $(APFELPPLIBS) $(PARTONSLIBS) $(NANGAPARBATLIBS)
 
 install : all
-all : EvolutionCheck GTMDMatchingkTxi GTMDMatchingkTQ GTMDMatchingxxi GTMDMatchingxxi_analytic
+all : EvolutionCheck GTMDMatchingkTxi GTMDMatchingkTQ GTMDMatchingxxi GTMDMatchingxxi_analytic GTMDMatchingkTxi_full Mixing_angle
 full: GTMDMatchingkTxi_full
 
 EvolutionCheck: EvolutionCheck.o
@@ -40,6 +40,9 @@ GTMDMatchingxxi: GTMDMatchingxxi.o
 	$(CXX) $(LDFLAGS) -o $@ $< $(CLIBS)
 
 GTMDMatchingxxi_analytic: GTMDMatchingxxi_analytic.o
+	$(CXX) $(LDFLAGS) -o $@ $< $(CLIBS)
+
+Mixing_angle: Mixing_angle.o
 	$(CXX) $(LDFLAGS) -o $@ $< $(CLIBS)
 
 .SUFFIXES : .cc .o .f .c
