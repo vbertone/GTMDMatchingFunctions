@@ -320,7 +320,7 @@ void S11a0plusq(std::string filename, int argc, char **argv)
   // Assuming that M^2 = 1 GeV^2
   std::vector<double> prefactor;
   for (const double &xi : xiv)
-    prefactor.emplace_back(-((1 - xi * xi) * (-tv.at(xi) / 4.0) - xi * xi));
+    prefactor.emplace_back((1 - xi * xi) * (-tv.at(xi) / 4.0) - xi * xi);
 
   for (double qT = qTmin; qT <= qTmax * (1 + 1e-5); qT += qTstp)
     {
