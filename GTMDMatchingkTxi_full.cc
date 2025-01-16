@@ -44,7 +44,7 @@ int main(int argc, char **argv)
 
   // S11a0plusq("S11a0plusUp.dat", argc, argv);
   // S11b0plusq("S11b0plusUp.dat", argc, argv);
-  S11a0plusq("S11a0plusUp_x_sim_xi.dat", argc, argv);
+  S11a0plusq("S11a0plusUp_Todd_only_matching.dat", argc, argv);
 
   return 0;
 }
@@ -244,25 +244,25 @@ std::vector<std::function<double(double const &)>> S11a0plusq_single_xi(double c
   {
     double l1 = cos(mixing_angle(bT));
     double l2 = sin(mixing_angle(bT));
-    return TabxGb.Evaluate(bT) * l1 - TabxGb_odd.Evaluate(bT) * l2;
+    return TabxGb.Evaluate(bT); //* l1 - TabxGb_odd.Evaluate(bT) * l2;
   };
   txGb[1] = [=](double const &bT) -> double
   {
     double l1 = cos(mixing_angle(bT));
     double l2 = sin(mixing_angle(bT));
-    return TabxGb.Evaluate(bT) * l2 + TabxGb_odd.Evaluate(bT) * l1;
+    return TabxGb_odd.Evaluate(bT); // * l1 + TabxGb.Evaluate(bT) * l2;
   };
   txGb[2] = [=](double const &bT) -> double
   {
     double l1 = cos(mixing_angle(bT));
     double l2 = sin(mixing_angle(bT));
-    return TabxGb_trans.Evaluate(bT) * l1 - TabxGb_trans_odd.Evaluate(bT) * l2;
+    return TabxGb_trans.Evaluate(bT); // * l1 - TabxGb_trans_odd.Evaluate(bT) * l2;
   };
   txGb[3] = [=](double const &bT) -> double
   {
     double l1 = cos(mixing_angle(bT));
     double l2 = sin(mixing_angle(bT));
-    return TabxGb_trans.Evaluate(bT) * l2 + TabxGb_trans_odd.Evaluate(bT) * l1;
+    return TabxGb_trans_odd.Evaluate(bT); // * l1 + TabxGb_trans.Evaluate(bT) * l2;
   };
 
   return txGb;
@@ -283,7 +283,7 @@ void S11a0plusq(std::string filename, int argc, char **argv)
   std::ostream &output_stream = *stream_ptr;
 
   // const std::vector<double> xiv = {0.001, 0.2, 0.3};
-  const std::vector<double> xiv = {0.15001};
+  const std::vector<double> xiv = {0.3};
   const double t_offset = -0.1;
   const std::map<double, double> tv = get_t_vector(xiv, t_offset);
 
