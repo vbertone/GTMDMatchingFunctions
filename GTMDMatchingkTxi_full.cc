@@ -21,22 +21,31 @@ std::mutex mutex_to_print;
 void S11a0plusq(std::string filename, int argc, char **argv);
 void S11b0plusq(std::string filename, int argc, char **argv);
 
-std::map<double, double> get_t_vector(std::vector<double> const &xiv, const double &t_offest)
+// Using M^2 = 1 GeV^2:
+// For |t| = 4/3, the maximal value of \xi is 1/2
+// For |t| =   1, the maximal value of \xi is 1/sqrt(5) ~ 0.4472
+// For |t| = 1/2, the maximal value of \xi is 1/3
+
+std::map<double, double> get_t_vector(std::vector<double> const &xiv, const double &t_offset)
 {
+  (void)t_offset;
   std::map<double, double> res;
   // Assuming that M^2 = 1 GeV^2
   for (const double &xi : xiv)
-    res[xi] = -std::abs(t_offest) - 4 * pow(xi, 2) / (1 - pow(xi, 2));
+    res[xi] = -0.5;
+  // res[xi] = -std::abs(t_offset) - 4 * pow(xi, 2) / (1 - pow(xi, 2));
   return res;
 }
 
-double get_t(double const &xi, const double &t_offest) { return -std::abs(t_offest) - 4 * pow(xi, 2) / (1 - pow(xi, 2)); }
+double get_t(double const &xi, const double &t_offset) { return -std::abs(t_offset) - 4 * pow(xi, 2) / (1 - pow(xi, 2)); }
 
 int main(int argc, char **argv)
 {
 
-  S11a0plusq("S11a0plusUp.dat", argc, argv);
+  // S11a0plusq("S11a0plusUp.dat", argc, argv);
   // S11b0plusq("S11b0plusUp.dat", argc, argv);
+  S11a0plusq("S11a0plusUp_x_sim_xi.dat", argc, argv);
+
   return 0;
 }
 
@@ -62,7 +71,7 @@ std::vector<std::function<double(double const &)>> S11a0plusq_single_xi(double c
   const double mc = 1.5;
   const double mb = 4.75;
   const double mt = 175;
-  const double xb = 0.2;
+  const double xb = 0.15;
   const double mu = 10;
   const int ifl = 2;
 
@@ -183,7 +192,10 @@ std::vector<std::function<double(double const &)>> S11a0plusq_single_xi(double c
   const auto CollGPDs_trans = [=](double const &mu) -> apfel::Set<apfel::Distribution> { return TabulatedGPDs_trans.Evaluate(mu); };
 
   // phi mixing angle
-  const auto mixing_angle = [=](double const &bT) -> double { return xb > xi ? 0 : M_PI * 0.5 * CSkernel(bs(bT, mu), mu); };
+  // adding non-perturbative part of CSkernel: - g2 b^2 / 4
+  const double g2 = 0.12840; // Value from MAP22b2
+  const auto NP_CSK = [&g2](double const &bT) -> double { return -g2 * bT * bT * 0.25; };
+  const auto mixing_angle = [=](double const &bT) -> double { return xb > xi ? 0 : M_PI * 0.5 * (CSkernel(bs(bT, mu), mu) + NP_CSK(bT)); };
 
   // Now compute GTMDs in bT space
   // Tabulate directly with the mixing angle
@@ -270,7 +282,8 @@ void S11a0plusq(std::string filename, int argc, char **argv)
 
   std::ostream &output_stream = *stream_ptr;
 
-  const std::vector<double> xiv = {0.001, 0.1, 0.3, 0.5, 0.7};
+  // const std::vector<double> xiv = {0.001, 0.2, 0.3};
+  const std::vector<double> xiv = {0.15001};
   const double t_offset = -0.1;
   const std::map<double, double> tv = get_t_vector(xiv, t_offset);
 
@@ -362,7 +375,7 @@ std::vector<std::function<double(double const &)>> S11b0plusq_single_xi(double c
   const double mc = 1.5;
   const double mb = 4.75;
   const double mt = 175;
-  const double xb = 0.2;
+  const double xb = 0.15;
   const double mu = 10;
   const int ifl = 2;
 
@@ -422,7 +435,10 @@ std::vector<std::function<double(double const &)>> S11b0plusq_single_xi(double c
   const auto CollGPDs = [=](double const &mu) -> apfel::Set<apfel::Distribution> { return TabulatedGPDs.Evaluate(mu); };
 
   // phi mixing angle
-  const auto mixing_angle = [=](double const &bT) -> double { return xb > xi ? 0 : M_PI * 0.5 * CSkernel(bs(bT, mu), mu); };
+  // adding non-perturbative part of CSkernel: - g2 b^2 / 4
+  const double g2 = 0.12840; // Value from MAP22b2
+  const auto NP_CSK = [&g2](double const &bT) -> double { return -g2 * bT * bT * 0.25; };
+  const auto mixing_angle = [=](double const &bT) -> double { return xb > xi ? 0 : M_PI * 0.5 * (CSkernel(bs(bT, mu), mu) + NP_CSK(bT)); };
 
   // Now compute GTMDs in bT space
   // Tabulate directly with the mixing angle
@@ -486,7 +502,7 @@ void S11b0plusq(std::string filename, int argc, char **argv)
   // Create GPD module with the BaseModuleFactory
   PARTONS::GPDModule *pGPDModel = PARTONS::Partons::getInstance()->getModuleObjectFactory()->newGPDModule(PARTONS::GPDGK16::classId);
 
-  const std::vector<double> xiv = {0.001, 0.1, 0.3, 0.5, 0.7};
+  const std::vector<double> xiv = {0.001, 0.2, 0.3};
   // offset of t from its minimum value (t = t_min - |t_offset|)
   const double t_offset = -0.1;
   const std::map<double, double> tv = get_t_vector(xiv, t_offset);
