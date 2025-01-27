@@ -6,7 +6,7 @@
 *.toc
 *.loc
 *.soc
-*.dat
+# *.dat
 *.pdf
 EvolutionCheck
 EvolutionCheck.o
